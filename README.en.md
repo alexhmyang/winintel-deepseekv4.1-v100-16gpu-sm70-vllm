@@ -6,7 +6,7 @@
 
 **💎 Put affordable V100 GPUs to work on complete models in the 400+ GB class.**
 
-**16 V100 GPUs · Two-node 100 Gb/s IB · FP4 WMMA · CUDA Graph**
+**16 V100 GPUs · Dual-port IB, 200 Gb/s aggregate · FP4 WMMA · CUDA Graph**
 
 [🌐 Website](https://winintel.com) · [中文](README.md) ·
 [🛠️ Deployment](docs/deployment.md) · [📊 Technical validation](docs/validation.md)
@@ -30,14 +30,15 @@ for commercial tasks, making local large-model deployment accessible to more
 businesses and developers.
 
 Build around **two servers with eight V100 32GB GPUs each**, connected by
-**100 Gb/s InfiniBand**, and follow our guide to start your trial.
+**dual-port InfiniBand (2 × 100 Gb/s, 200 Gb/s aggregate link bandwidth)**,
+and follow our guide to start your trial.
 The 16 GPUs provide **512 GB of aggregate physical VRAM**. The model retains
 its complete architecture and experts with official native **FP8 + MXFP4**
 compressed weights.
 
 - 💎 **More value from existing hardware:** SM70 adaptations for affordable V100 GPUs lower the hardware barrier to exploring complete models.
 - 🧠 **Complete-model approach:** Retains the official architecture and experts for local exploration of DeepSeek reasoning, coding, and knowledge tasks.
-- ⚡ **Fast two-server communication:** 100 Gb/s IB, low latency, and RDMA provide a fast data path between servers.
+- ⚡ **Fast two-server communication:** Dual 100G IB ports offer 200 Gb/s aggregate link bandwidth, with low latency and RDMA for transfers between servers.
 - 🏎️ **Optimized for V100:** FP4 WMMA, FP8 decoded-weight caching, and decode CUDA graphs reduce repeated work and GPU scheduling overhead.
 - 🔒 **Keep data local:** Inference and tokenization use local model files on infrastructure you control.
 - 🛠️ **Ready to explore:** Source packages, two-node settings, deployment instructions, and test tools are included.
@@ -47,7 +48,7 @@ compressed weights.
 | Feature | Implementation and benefit |
 | --- | --- |
 | Affordable complete-model deployment | Targets DeepSeek V4.1 Flash in the 400+ GB class, using 16 V100 32GB GPUs and native compressed weights to retain the complete architecture |
-| Two-node 100 Gb/s IB interconnect | RDMA and low-latency transfers reduce cross-node communication overhead and provide a fast path for TP / PP |
+| Dual-port IB, 200 Gb/s aggregate | Each port runs at 100 Gb/s and both are Active / LinkUp; RDMA and low-latency transfers provide a fast path for TP / PP |
 | Existing SM70 operator reuse | Original FP4 WMMA CUDA source, packed expert weights, MXFP4 / E8M0 scale adaptation |
 | FP8 decoded-weight cache | Reuses decoded matrices to reduce repeated weight conversion, with a configurable cache budget |
 | Small-batch decode graphs | Captures FP8 input quantization, activation decoding, GEMM, and complete expert computation |
@@ -60,7 +61,9 @@ compressed weights.
 
 A model distributed across two servers depends on cross-node transfers for tensor
 parallel communication and activation transfers between pipeline stages.
-**100 Gb/s IB provides high link bandwidth, low latency, and RDMA**, reducing CPU
+Each server has **two 100 Gb/s IB ports, providing 200 Gb/s aggregate link
+bandwidth**, with both ports **Active / LinkUp**.
+**IB provides high bandwidth, low latency, and RDMA**, reducing CPU
 involvement in data transfers and interference with computation. This helps
 existing V100 clusters handle complete large models.
 
@@ -69,9 +72,12 @@ existing V100 clusters handle complete large models.
 | Common Gigabit Ethernet | 1 Gb/s | 100× |
 | Common 10 Gigabit Ethernet | 10 Gb/s | 10× |
 | 25 Gigabit Ethernet | 25 Gb/s | 4× |
-| This project's IB link | 100 Gb/s | 1× |
+| One IB port in this project | 100 Gb/s | 1× |
 
-The table compares **nominal link bandwidth**. Fast IB transfers and RDMA
+The table compares **nominal bandwidth per port**; both ports together provide
+**200 Gb/s aggregate link bandwidth**. Communication across multiple ports can
+use both links; actual data throughput depends on configuration and workload.
+Fast IB transfers and RDMA
 provide the communication foundation for TP / PP across the two servers.
 Follow the [two-node configuration](configs/two-node.env.example) and
 [deployment guide](docs/deployment.md) to configure the HCA and NCCL IB path.
