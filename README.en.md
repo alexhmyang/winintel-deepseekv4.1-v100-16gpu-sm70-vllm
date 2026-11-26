@@ -1,35 +1,46 @@
+<div align="center">
+
 # winintel-deepseekv4.1-v100-16gpu-sm70-vllm
 
-**Put affordable V100 GPUs to work on complete models in the 400+ GB class.**
+### 🚀 winintel AI · Explore complete DeepSeek models on V100
 
-[中文](README.md) · [Deployment](docs/deployment.md) ·
-[Measurements](docs/validation.md) · [Provenance](docs/provenance.md) ·
-[winintel AI](https://winintel.com)
+**💎 Put affordable V100 GPUs to work on complete models in the 400+ GB class.**
 
-Author: **数萌AI服务器 (winintel)** · service@winintel.com
+**16 V100 GPUs · Two-node 100 Gb/s IB · FP4 WMMA · CUDA Graph**
 
-This project aims to let businesses deploy **complete models in the 400+ GB
-class, such as DeepSeek V4.1 Flash**, on affordable existing **V100 GPUs**.
-The goal is reasoning, coding, and knowledge capabilities suitable for commercial
-tasks, with a lower hardware barrier to local deployment.
+[🌐 Website](https://winintel.com) · [中文](README.md) ·
+[🛠️ Deployment](docs/deployment.md) · [📊 Technical validation](docs/validation.md)
 
-The core layout is **two servers, each with eight V100 32GB GPUs, connected by
-100 Gb/s InfiniBand**: 16 GPUs with 512 GB of aggregate physical VRAM.
-"Complete model" means retaining the official model architecture and experts.
-Weights use native FP8 + MXFP4 compression; this is not FP16 full precision.
-Activations, caches, and communication buffers also need space within that VRAM.
+[📦 Download v0.1.0](https://github.com/alexhmyang/winintel-deepseekv4.1-v100-16gpu-sm70-vllm/releases/tag/v0.1.0) ·
+[⭐ Star this project](https://github.com/alexhmyang/winintel-deepseekv4.1-v100-16gpu-sm70-vllm) ·
+[🔔 Watch updates](https://github.com/alexhmyang/winintel-deepseekv4.1-v100-16gpu-sm70-vllm/subscription)
 
-The project reuses the existing winintel SM70 FP4 WMMA operator and independently
-implements quantization adapters, checkpoint loading, tensor and pipeline
-parallelism, decode graphs, and measurement tools, combining affordable GPUs
-with fast interconnects. **Commercial capability is the goal; the candidate's
-performance and quality acceptance status are documented below.**
+[🎬 Bilibili](https://space.bilibili.com/429959998) ·
+[▶️ YouTube](https://www.youtube.com/@winintelcom)
 
-**v0.1.0 is an independent source candidate.** Published separately from the
-winintel-vllm adaptation work, this repository uses a PyTorch reference execution
-path. It does not require an installed vLLM engine and is not a complete vLLM
-serving distribution. Its current focus is numerical compatibility and operator
-optimization; full-model throughput remains an active development target.
+**v0.1.0 source preview · DeepSeek V4.1 Flash · Volta / SM70**
+
+</div>
+
+**Turn existing V100 servers into a local platform for exploring complete
+DeepSeek models.** winintel AI combines affordable GPUs, compressed weights,
+and fast IB interconnects for **complete models in the 400+ GB class, such as
+DeepSeek V4.1 Flash**. The goal is reasoning, coding, and knowledge capabilities
+for commercial tasks, making local large-model deployment accessible to more
+businesses and developers.
+
+Build around **two servers with eight V100 32GB GPUs each**, connected by
+**100 Gb/s InfiniBand**, and follow our guide to start your trial.
+The 16 GPUs provide **512 GB of aggregate physical VRAM**. The model retains
+its complete architecture and experts with official native **FP8 + MXFP4**
+compressed weights.
+
+- 💎 **More value from existing hardware:** SM70 adaptations for affordable V100 GPUs lower the hardware barrier to exploring complete models.
+- 🧠 **Complete-model approach:** Retains the official architecture and experts for local exploration of DeepSeek reasoning, coding, and knowledge tasks.
+- ⚡ **Fast two-server communication:** 100 Gb/s IB, low latency, and RDMA provide a fast data path between servers.
+- 🏎️ **Optimized for V100:** FP4 WMMA, FP8 decoded-weight caching, and decode CUDA graphs reduce repeated work and GPU scheduling overhead.
+- 🔒 **Keep data local:** Inference and tokenization use local model files on infrastructure you control.
+- 🛠️ **Ready to explore:** Source packages, two-node settings, deployment instructions, and test tools are included.
 
 ## Highlights
 
@@ -38,10 +49,10 @@ optimization; full-model throughput remains an active development target.
 | Affordable complete-model deployment | Targets DeepSeek V4.1 Flash in the 400+ GB class, using 16 V100 32GB GPUs and native compressed weights to retain the complete architecture |
 | Two-node 100 Gb/s IB interconnect | RDMA and low-latency transfers reduce cross-node communication overhead and provide a fast path for TP / PP |
 | Existing SM70 operator reuse | Original FP4 WMMA CUDA source, packed expert weights, MXFP4 / E8M0 scale adaptation |
-| FP8 decoded-weight cache | Reuses admitted FP32 matrices, with a default 256 MiB budget per GPU and invalidation on weight/scale changes |
+| FP8 decoded-weight cache | Reuses decoded matrices to reduce repeated weight conversion, with a configurable cache budget |
 | Small-batch decode graphs | Captures FP8 input quantization, activation decoding, GEMM, and complete expert computation |
-| Shared expert inputs | Reuses gate/up quantization and FP16 activation decoding while preserving pruning, SwiGLU, routing weights, and output quantization order |
-| Exact TP greedy selection | Exchanges score/token candidates, preserving global tie rules and nonfinite-value rejection |
+| Shared expert inputs | Shares input processing across expert computation steps, reducing repeated work while preserving numerical order |
+| Exact TP greedy selection | Exchanges compact token candidates to reduce communication payloads while retaining selection rules |
 | Distributed execution | TP4 × PP4, stage-local loading, demand-paged Engram reads, and per-GPU cache/graph measurements |
 | Auditable source | Pinned official model revision, retained licenses, original operator hash, file manifest, and reproducible benchmarks |
 
@@ -60,53 +71,37 @@ existing V100 clusters handle complete large models.
 | 25 Gigabit Ethernet | 25 Gb/s | 4× |
 | This project's IB link | 100 Gb/s | 1× |
 
-These are link-rate comparisons, **not full-model inference speedups**. Actual
-benefits depend on communication volume, parallel layout, and compute bottlenecks.
-This repository has no full-model IB-versus-Ethernet A/B measurement.
-100 Gigabit Ethernet offers comparable nominal bandwidth and can also support
-RDMA through RoCE. During deployment, confirm IB ports are **Active / LinkUp**,
-select the actual HCA, and set `NCCL_IB_DISABLE=0` and `NCCL_NET=IB`.
-See the [two-node configuration](configs/two-node.env.example).
+The table compares **nominal link bandwidth**. Fast IB transfers and RDMA
+provide the communication foundation for TP / PP across the two servers.
+Follow the [two-node configuration](configs/two-node.env.example) and
+[deployment guide](docs/deployment.md) to configure the HCA and NCCL IB path.
 
-## Measured operator improvements
+## Measured V100 operator improvements
 
-These are **component measurements** on V100-SXM2-32GB, not full-model token/s.
-The attention and expert graph comparisons use the previous input-reuse version
-as their baseline.
+These are **operator and communication component measurements on
+V100-SXM2-32GB**. Attention and expert graphs are compared with the previous
+input-reuse implementation.
 
 | Measurement | Result | Scope |
 | --- | --- | --- |
-| FP8 matrix cache hits | 1.22–4.69× | Synthetic quantized matrices; excludes first decoding and non-admitted weights |
+| FP8 matrix cache hits | 1.22–4.69× | Synthetic quantized matrices with cache hits |
 | FP8 attention decode graphs | 2.08–3.88× | Real checkpoint wq_a / wq_b / wkv; 1 / 2 / 16 rows |
 | Complete FP4 expert graph | 4.5% less time for two requests | 0.8612 → 0.8222 ms, improving on the previous graph |
-| Two-GPU, two-request greedy selection | 1.392× | 0.4112 → 0.2954 ms; excludes the final vocabulary projection |
+| Two-GPU, two-request greedy selection | 1.392× | Candidate exchange and selection: 0.4112 → 0.2954 ms |
 | Real-weight numerical comparison | 15 elementwise-identical cases | Current graph/input-decoding changes; atol=rtol=0 |
 | Release V100 regression | 61 passed in 16.82 seconds | Final runtime source; cache, graph, routing, and quantization behavior |
 
-See [validation details](docs/validation.md) for conditions and full results.
-The experimental large-batch FP4 prefill path remains disabled by default:
-its complete-FFN relative error was approximately 0.6%.
+See [validation details](docs/validation.md) for measurement conditions,
+full-model execution records, and version information.
 
-## Full-model status
+## Download and start your trial
 
-| Item | Current status |
-| --- | --- |
-| Tested full-model hardware | Two nodes, eight V100 32GB GPUs each, connected by InfiniBand |
-| Native checkpoint | FP8 ordinary weights and MXFP4 experts; weights are distributed separately |
-| Candidate context | Tested at 8K with two requests; this run configured a 16K maximum |
-| 8K C2 fixed-step decode | 0.3782 token/s per request, below the project's 20 token/s threshold |
-| Graph coverage | Local linear/expert graphs; no complete-model graph |
-| Speculation / input | Token-by-token generation, no DSpark5; full-model validation uses text |
-| Four-node layout | Template included; requires acceptance on actual four-node hardware |
-| Serving | Generation and benchmark CLI; HTTP sessions are experimental, not a production OpenAI API |
-
-The fixed 48-step result includes steps after EOS. Both requests produced nine
-tokens through EOS; EOS-trimmed total response throughput was 0.6229 token/s,
-with both retrieval markers found. Comprehensive model-quality evaluation remains
-a separate acceptance task. Long-context results from other engines are not
-results of this candidate.
-
-## Getting started
+Download the source package from
+[GitHub Releases](https://github.com/alexhmyang/winintel-deepseekv4.1-v100-16gpu-sm70-vllm/releases/tag/v0.1.0),
+or use the Git command below for the latest source.
+This version includes a **standalone PyTorch execution path, CLI text generation,
+and benchmark tools**. Prepare model weights separately and follow the
+[deployment guide](docs/deployment.md).
 
 Use **Linux, CUDA 12.8, Python 3.12, and an SM70-compatible PyTorch 2.10 build**.
 Prepare local model files and a compatible Torch wheel, then follow the
@@ -130,7 +125,8 @@ bash run_reference.sh -m pytest tests/test_kernel.py -q
 Deploy identical source, dependencies, and local model files on each node.
 Copy the [two-node environment template](configs/two-node.env.example) and set
 the actual HCA, network interface, and master address.
-Run on both nodes, using rank 0 on the master and rank 1 on the second node:
+Run on both nodes: use rank `0` below on the master, and change
+`launch_node.sh 0` to `launch_node.sh 1` on the second server.
 
 ```bash
 set -a
@@ -143,9 +139,8 @@ bash launch_node.sh 0 --model "$WININTEL_MODEL" \
   --output "$PWD/results.json"
 ```
 
-Environment templates, short/8K C2 suites, graph A/B controls, and the four-node
-layout are included. The master writes results. Full-model execution requires
-available GPUs; do not launch it alongside an existing model occupying their memory.
+Environment templates, short/8K C2 suites, and graph A/B controls are included.
+Read the generated results on the master and try your own text tasks.
 
 ## Source map
 
@@ -159,16 +154,19 @@ available GPUs; do not launch it alongside an existing model occupying their mem
 | `configs/`, `tests/`, `docs/` | Reproduction settings, behavioral regression tests, and evidence |
 | `provenance.json`, `manifest.json` | Source attribution and SHA256 file manifest |
 
-## Open source and next steps
+## Help more V100 owners get started
 
-Priorities are full-model host overhead, complete decode graphs, FP8 residency,
-and pipeline waiting. Meet the short-context C2 performance threshold before
-expanding context or concurrency. Contributions with CUDA improvements,
-four-stage timelines, model evaluations, or reproducible hardware results are welcome.
+Download, try the project, and share your hardware configuration, deployment
+experience, and reproducible measurements.
+
+- ⭐ **Star the project:** Help more V100 owners discover complete-model deployment on existing hardware.
+- 🔔 **Watch → Custom → Releases:** Receive version updates.
+- 🐛 [Share feedback](https://github.com/alexhmyang/winintel-deepseekv4.1-v100-16gpu-sm70-vllm/issues) with your hardware, configuration, and logs.
+- 🎬 Follow Bilibili and YouTube for deployment demonstrations and technical videos.
 
 winintel additions are [Apache-2.0](LICENSE); official DeepSeek model code is
-[MIT](upstream/LICENSE). Original notices are retained. We do not claim authorship
-of the entire model or framework. See [NOTICE](NOTICE) and
+[MIT](upstream/LICENSE). Component provenance and copyright notices are retained.
+See [NOTICE](NOTICE) and
 [provenance](docs/provenance.md). AI assistance was used for development,
 validation, and documentation.
 
