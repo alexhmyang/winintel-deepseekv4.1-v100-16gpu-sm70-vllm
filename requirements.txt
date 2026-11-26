@@ -1,0 +1,9 @@
+# Author: 数萌AI服务器 (winintel)
+# Install a separately prepared SM70-compatible PyTorch 2.10 wheel first.
+transformers>=4.57,<5
+numpy>=1.26,<3
+pillow>=10
+requests>=2.32
+sympy>=1.13
+pytest>=8,<10
+ninja>=1.11

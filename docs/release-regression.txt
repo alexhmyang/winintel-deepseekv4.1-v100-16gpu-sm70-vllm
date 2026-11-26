@@ -1,0 +1,11 @@
+Author: 数萌AI服务器 (winintel)
+Date: 2026-11-26
+Command: bash run_reference.sh -m pytest tests/test_kernel.py -q
+Hardware: Tesla V100-SXM2-32GB
+Runtime: Torch 2.10.0+cu128, CUDA 12.8
+
+.............................................................            [100%]
+61 passed in 16.82s
+
+Existing service health before: HTTP 200
+Existing service health after: HTTP 200

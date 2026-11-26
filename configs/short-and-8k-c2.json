@@ -1,0 +1,40 @@
+{
+  "cases": [
+    {
+      "name": "short-c2-baseline",
+      "concurrency": 2,
+      "input_tokens": 256,
+      "new_tokens": 48,
+      "prompt": "Return only the secret key from the beginning.",
+      "fp8_graph": false,
+      "expert_shared_decode": false
+    },
+    {
+      "name": "short-c2-candidate",
+      "concurrency": 2,
+      "input_tokens": 256,
+      "new_tokens": 48,
+      "prompt": "Return only the secret key from the beginning.",
+      "fp8_graph": true,
+      "expert_shared_decode": true
+    },
+    {
+      "name": "8k-c2-baseline",
+      "concurrency": 2,
+      "input_tokens": 8192,
+      "new_tokens": 48,
+      "prompt": "Return only the secret key from the beginning.",
+      "fp8_graph": false,
+      "expert_shared_decode": false
+    },
+    {
+      "name": "8k-c2-candidate",
+      "concurrency": 2,
+      "input_tokens": 8192,
+      "new_tokens": 48,
+      "prompt": "Return only the secret key from the beginning.",
+      "fp8_graph": true,
+      "expert_shared_decode": true
+    }
+  ]
+}

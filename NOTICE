@@ -1,0 +1,19 @@
+winintel-deepseekv4.1-v100-16gpu-sm70-vllm
+Copyright 2026 数萌AI服务器 (winintel)
+Website: https://winintel.com
+Contact: service@winintel.com
+
+Independently authored runtime adapters, benchmarks and documentation are
+licensed under Apache License 2.0. See LICENSE.
+
+The official DeepSeek model reference files in upstream/ are from
+deepseek-ai/DeepSeek-V4.1-Flash-1017 at revision
+1bae0e1088993b9b82de08f59de5be5a34e42170.
+Copyright (c) 2023 DeepSeek. Licensed under MIT; see upstream/LICENSE.
+
+upstream/qwen_fp4.cu is the unchanged existing winintel SM70 WMMA operator.
+See upstream/QWEN_KERNEL_NOTICE and upstream/QWEN_KERNEL_LICENSE.
+
+PyTorch, CUDA and other dependencies are installed separately and retain
+their own licenses. Model weights are not included.
+This publication contains AI-assisted work.

@@ -1,0 +1,11 @@
+winintel SM70 FP4 operator
+Author: 数萌AI服务器 (winintel)
+Website: https://winintel.com
+
+qwen_fp4.cu is an unchanged copy of the local winintel-vllm Qwen SM70 release:
+dist/qwen3.8/csrc/winintel/sm70/winintel_sm70_nvfp4.cu
+SHA256: 721d8d0c36d572ce8c8f864f002edc7ab4cf16270c53cfb78a2f28d62cec14ce
+
+Licensed under Apache License 2.0. See QWEN_KERNEL_LICENSE.
+The original SPDX and author notices remain in the source.
+The operator uses CUDA WMMA and PyTorch extension interfaces.

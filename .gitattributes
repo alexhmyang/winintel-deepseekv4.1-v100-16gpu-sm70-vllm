@@ -1,0 +1,2 @@
+# Preserve byte identity for the SHA256 source and provenance manifests.
+* -text whitespace=cr-at-eol

@@ -1,0 +1,67 @@
+{
+  "author": "数萌AI服务器 (winintel)",
+  "brand": "winintel AI",
+  "stage": "independent source candidate",
+  "model_reference": {
+    "repository": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "revision": "1bae0e1088993b9b82de08f59de5be5a34e42170",
+    "license": "MIT",
+    "files": {
+      "upstream/model.py": "e5decd76fe70fd56ef2f10124d245c6f64fb6a0003cc9068a1d3182a168b8d2d",
+      "upstream/engram.py": "11f35ecbead8150c35aa002b3d180ef290b05a25afe883a11884f94d476d3897",
+      "upstream/image_processor.py": "482759e3bcc4e9bb5ee582b244cc563f5d0e163d8b48dda91ebb7106e62f9272",
+      "upstream/vision.py": "5d49edc196a4ef22384abe76d35a40098cbe1e74b586c8f66a2edff4f076b26c"
+    }
+  },
+  "reused_local_operator": {
+    "source": "dist/qwen3.8/csrc/winintel/sm70/winintel_sm70_nvfp4.cu",
+    "vendored_file": "upstream/qwen_fp4.cu",
+    "sha256": "721d8d0c36d572ce8c8f864f002edc7ab4cf16270c53cfb78a2f28d62cec14ce",
+    "license": "Apache-2.0",
+    "modified": false
+  },
+  "fp8_execution": "PyTorch FP32 matmul; bounded versioned decode cache and cached decode graphs",
+  "external_dependencies": [
+    "PyTorch 2.10",
+    "Transformers",
+    "NumPy",
+    "Pillow",
+    "Requests",
+    "urllib3",
+    "SymPy",
+    "tokenizers",
+    "pytest",
+    "uv",
+    "CUDA toolkit"
+  ],
+  "previous_engine_source_or_binary_reused": false,
+  "whole_engine_original_claim": false,
+  "full_checkpoint_generation_qualified": false,
+  "performance_qualified": false,
+  "local_implementation": [
+    "kernel.py",
+    "reference.py",
+    "qwen_adapter.py",
+    "checkpoint.py",
+    "check_checkpoint.py",
+    "pipeline.py",
+    "loading.py",
+    "distributed.py",
+    "precision.py",
+    "prefill.py",
+    "generate.py",
+    "benchmark.py",
+    "report.py",
+    "request_cache.py",
+    "routing.py",
+    "expert_graph.py",
+    "http_sessions.py",
+    "native_ops.py",
+    "native_moe.py",
+    "native_hc.py",
+    "greedy.py",
+    "launch_node.sh",
+    "run_reference.sh",
+    "tests/test_kernel.py"
+  ]
+}
