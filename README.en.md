@@ -1,6 +1,6 @@
 # winintel-deepseekv4.1-v100-16gpu-sm70-vllm
 
-**Keep 16 V100 GPUs useful for the next generation of large models.**
+**Put affordable V100 GPUs to work on complete models in the 400+ GB class.**
 
 [中文](README.md) · [Deployment](docs/deployment.md) ·
 [Measurements](docs/validation.md) · [Provenance](docs/provenance.md) ·
@@ -8,10 +8,22 @@
 
 Author: **数萌AI服务器 (winintel)** · service@winintel.com
 
-An open-source inference research project for **DeepSeek V4.1 Flash on
-16 × V100 32GB GPUs, Volta SM70**. It reuses the existing winintel SM70 FP4
-WMMA operator and independently implements quantization adapters, checkpoint
-loading, tensor and pipeline parallelism, decode graphs, and measurement tools.
+This project aims to let businesses deploy **complete models in the 400+ GB
+class, such as DeepSeek V4.1 Flash**, on affordable existing **V100 GPUs**.
+The goal is reasoning, coding, and knowledge capabilities suitable for commercial
+tasks, with a lower hardware barrier to local deployment.
+
+The core layout is **two servers, each with eight V100 32GB GPUs, connected by
+100 Gb/s InfiniBand**: 16 GPUs with 512 GB of aggregate physical VRAM.
+"Complete model" means retaining the official model architecture and experts.
+Weights use native FP8 + MXFP4 compression; this is not FP16 full precision.
+Activations, caches, and communication buffers also need space within that VRAM.
+
+The project reuses the existing winintel SM70 FP4 WMMA operator and independently
+implements quantization adapters, checkpoint loading, tensor and pipeline
+parallelism, decode graphs, and measurement tools, combining affordable GPUs
+with fast interconnects. **Commercial capability is the goal; the candidate's
+performance and quality acceptance status are documented below.**
 
 **v0.1.0 is an independent source candidate.** Published separately from the
 winintel-vllm adaptation work, this repository uses a PyTorch reference execution
@@ -23,6 +35,8 @@ optimization; full-model throughput remains an active development target.
 
 | Feature | Implementation and benefit |
 | --- | --- |
+| Affordable complete-model deployment | Targets DeepSeek V4.1 Flash in the 400+ GB class, using 16 V100 32GB GPUs and native compressed weights to retain the complete architecture |
+| Two-node 100 Gb/s IB interconnect | RDMA and low-latency transfers reduce cross-node communication overhead and provide a fast path for TP / PP |
 | Existing SM70 operator reuse | Original FP4 WMMA CUDA source, packed expert weights, MXFP4 / E8M0 scale adaptation |
 | FP8 decoded-weight cache | Reuses admitted FP32 matrices, with a default 256 MiB budget per GPU and invalidation on weight/scale changes |
 | Small-batch decode graphs | Captures FP8 input quantization, activation decoding, GEMM, and complete expert computation |
@@ -30,6 +44,29 @@ optimization; full-model throughput remains an active development target.
 | Exact TP greedy selection | Exchanges score/token candidates, preserving global tie rules and nonfinite-value rejection |
 | Distributed execution | TP4 × PP4, stage-local loading, demand-paged Engram reads, and per-GPU cache/graph measurements |
 | Auditable source | Pinned official model revision, retained licenses, original operator hash, file manifest, and reproducible benchmarks |
+
+## Why connect the two servers with IB?
+
+A model distributed across two servers depends on cross-node transfers for tensor
+parallel communication and activation transfers between pipeline stages.
+**100 Gb/s IB provides high link bandwidth, low latency, and RDMA**, reducing CPU
+involvement in data transfers and interference with computation. This helps
+existing V100 clusters handle complete large models.
+
+| Link | Nominal bandwidth | Nominal bandwidth ratio of 100 Gb/s IB |
+| --- | --- | --- |
+| Common Gigabit Ethernet | 1 Gb/s | 100× |
+| Common 10 Gigabit Ethernet | 10 Gb/s | 10× |
+| 25 Gigabit Ethernet | 25 Gb/s | 4× |
+| This project's IB link | 100 Gb/s | 1× |
+
+These are link-rate comparisons, **not full-model inference speedups**. Actual
+benefits depend on communication volume, parallel layout, and compute bottlenecks.
+This repository has no full-model IB-versus-Ethernet A/B measurement.
+100 Gigabit Ethernet offers comparable nominal bandwidth and can also support
+RDMA through RoCE. During deployment, confirm IB ports are **Active / LinkUp**,
+select the actual HCA, and set `NCCL_IB_DISABLE=0` and `NCCL_NET=IB`.
+See the [two-node configuration](configs/two-node.env.example).
 
 ## Measured operator improvements
 
