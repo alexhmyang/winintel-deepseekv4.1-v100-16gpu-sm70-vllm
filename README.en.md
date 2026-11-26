@@ -82,6 +82,24 @@ provide the communication foundation for TP / PP across the two servers.
 Follow the [two-node configuration](configs/two-node.env.example) and
 [deployment guide](docs/deployment.md) to configure the HCA and NCCL IB path.
 
+### Measured DeepSeek full-model network comparison
+
+On the same two-server, 16-V100, TP4 × PP4 deployment baseline, **IB reduced
+first-token waiting by 70.2% at 256K with one request**.
+These historical network A/B measurements used the deployment baseline before
+this independent source release, comparing IB with physical **1GbE / NCCL Socket**.
+
+| Input / concurrency | IB first token | Gigabit Ethernet first token | First-token speedup |
+| --- | ---: | ---: | ---: |
+| 8K / 1 | 2.23 s | 7.01 s | **3.15×** |
+| 8K / 8 | 16.74 s | 55.31 s | **3.30×** |
+| 256K / 1 | 63.47 s | 213.28 s | **3.36×** |
+| 256K / 4 | 249.22 s | 848.35 s | **3.40×** |
+
+First-token values are the slowest request in each round; speedup is Ethernet
+latency divided by IB latency. See the [network benchmark report](docs/ib-ethernet-benchmark.md)
+for **all 14 paired configurations, decode comparisons, and the CSV export**.
+
 ## Measured V100 operator improvements
 
 These are **operator and communication component measurements on
